@@ -1,7 +1,10 @@
 package utils
 
 import (
+	"flag"
 	"fmt"
+	"io"
+	"os"
 	"runtime"
 	"strings"
 
@@ -39,6 +42,75 @@ func ErrIs(err error, f Flag) bool {
 type L struct {
 	*log.Entry
 	C Counter
+}
+
+var stdL *L
+
+func init() {
+	stdL = &L{log.NewEntry(log.StandardLogger()), 0}
+}
+
+func StandardL() *L {
+	return stdL
+}
+
+func LogFlagParse() (io.Writer, log.Level, bool, error) {
+	var l log.Level
+	var o io.Writer
+	var c bool
+	var err error
+	var out string
+	var level string
+
+	flag.StringVar(&out, "logout", "stdout", "log output")
+	flag.StringVar(&level, "loglevel", "info", "log level")
+	flag.BoolVar(&c, "logcolors", false, "log colors")
+
+	flag.Parse()
+
+	switch out {
+	case "stdout":
+		o = os.Stdout
+	default:
+		o, err = os.OpenFile(out, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0666)
+	}
+
+	switch level {
+	case "debug":
+		l = log.DebugLevel
+	case "info":
+		l = log.InfoLevel
+	case "warn":
+		l = log.WarnLevel
+	case "error":
+		l = log.ErrorLevel
+	case "fatal":
+		l = log.FatalLevel
+	case "panic":
+		l = log.PanicLevel
+	default:
+		err = fmt.Errorf("log level not recoginzed '%v'", level)
+	}
+
+	return o, l, c, err
+}
+
+func SetStdLoggerWithFlag() error {
+	o, l, c, err := LogFlagParse()
+	if err != nil {
+		return fmt.Errorf("cannot parse log flags %v", err)
+	}
+
+	stdL.Logger.Out = o
+	stdL.Logger.Formatter = &log.TextFormatter{
+		DisableColors:    !c,
+		DisableTimestamp: false,
+		FullTimestamp:    true,
+		TimestampFormat:  "Jan _2 15:04:05"}
+
+	stdL.Logger.Level = l
+
+	return nil
 }
 
 const (
