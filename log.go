@@ -54,25 +54,32 @@ func StandardL() *L {
 	return stdL
 }
 
-func LogFlagParse() (io.Writer, log.Level, bool, error) {
+func SetLogFlags(f *flag.FlagSet) (*string, *string, *bool) {
+	var o string
+	var l string
+	var c bool
+
+	f.StringVar(&o, "logout", "stdout", "log output")
+	f.StringVar(&l, "loglevel", "info", "log level")
+	f.BoolVar(&c, "logcolors", false, "log colors")
+
+	return &o, &l, &c
+}
+
+func ConfigureStdLoggerWithFlags(out, level string, colors bool) error {
 	var l log.Level
 	var o io.Writer
-	var c bool
 	var err error
-	var out string
-	var level string
-
-	flag.StringVar(&out, "logout", "stdout", "log output")
-	flag.StringVar(&level, "loglevel", "info", "log level")
-	flag.BoolVar(&c, "logcolors", false, "log colors")
-
-	flag.Parse()
 
 	switch out {
 	case "stdout":
 		o = os.Stdout
 	default:
 		o, err = os.OpenFile(out, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0666)
+	}
+
+	if err != nil {
+		return err
 	}
 
 	switch level {
@@ -92,18 +99,13 @@ func LogFlagParse() (io.Writer, log.Level, bool, error) {
 		err = fmt.Errorf("log level not recoginzed '%v'", level)
 	}
 
-	return o, l, c, err
-}
-
-func SetStdLoggerWithFlag() error {
-	o, l, c, err := LogFlagParse()
 	if err != nil {
-		return fmt.Errorf("cannot parse log flags %v", err)
+		return err
 	}
 
 	stdL.Logger.Out = o
 	stdL.Logger.Formatter = &log.TextFormatter{
-		DisableColors:    !c,
+		DisableColors:    !colors,
 		DisableTimestamp: false,
 		FullTimestamp:    true,
 		TimestampFormat:  "Jan _2 15:04:05"}
