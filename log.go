@@ -1,7 +1,6 @@
 package utils
 
 import (
-	"flag"
 	"fmt"
 	"io"
 	"os"
@@ -54,35 +53,33 @@ func StandardL() *L {
 	return stdL
 }
 
-func SetLogFlags(f *flag.FlagSet) (*string, *string, *bool) {
-	var o string
-	var l string
-	var c bool
-
-	f.StringVar(&o, "logout", "stdout", "log output")
-	f.StringVar(&l, "loglevel", "info", "log level")
-	f.BoolVar(&c, "logcolors", false, "log colors")
-
-	return &o, &l, &c
+type LogConfiguration struct {
+	LogOut    string
+	LogLevel  string
+	LogColors bool
 }
 
-func ConfigureStdLoggerWithFlags(out, level string, colors bool) error {
+func (l *LogConfiguration) SetToDefaults() {
+	*l = LogConfiguration{"stdout", "error", false}
+}
+
+func ConfigureStdLogger(lc LogConfiguration) error {
 	var l log.Level
 	var o io.Writer
 	var err error
 
-	switch out {
+	switch lc.LogOut {
 	case "stdout":
 		o = os.Stdout
 	default:
-		o, err = os.OpenFile(out, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0666)
+		o, err = os.OpenFile(lc.LogOut, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0666)
 	}
 
 	if err != nil {
 		return err
 	}
 
-	switch level {
+	switch lc.LogLevel {
 	case "debug":
 		l = log.DebugLevel
 	case "info":
@@ -96,7 +93,7 @@ func ConfigureStdLoggerWithFlags(out, level string, colors bool) error {
 	case "panic":
 		l = log.PanicLevel
 	default:
-		err = fmt.Errorf("log level not recoginzed '%v'", level)
+		err = fmt.Errorf("log level not recoginzed '%v'", lc.LogLevel)
 	}
 
 	if err != nil {
@@ -105,7 +102,7 @@ func ConfigureStdLoggerWithFlags(out, level string, colors bool) error {
 
 	stdL.Logger.Out = o
 	stdL.Logger.Formatter = &log.TextFormatter{
-		DisableColors:    !colors,
+		DisableColors:    !lc.LogColors,
 		DisableTimestamp: false,
 		FullTimestamp:    true,
 		TimestampFormat:  "Jan _2 15:04:05"}
