@@ -3,16 +3,16 @@ package utils_test
 import (
 	"fmt"
 
-	"github.com/jloup/errors"
+	"github.com/jloup/utils"
 )
 
 func ExampleErrorAggregator() {
 
-	var UserError = New("UserError", 0)
-	var ParsingError = New("ParsingError", 1)
-	var IOError = New("IOError", 2)
+	var UserError = utils.New("UserError", 0)
+	var ParsingError = utils.New("ParsingError", 1)
+	var IOError = utils.New("IOError", 2)
 
-	report := errors.NewErrorAggregator()
+	report := utils.NewErrorAggregator()
 
 	report.New(UserError, "bad input")
 	report.New(UserError, "not identified")
@@ -23,7 +23,7 @@ func ExampleErrorAggregator() {
 
 	fmt.Printf("Report (user errors):\n%s\n\n", report.ErrorWithCode(UserError).Error())
 
-	fmt.Printf("Report (io and parsing errors):\n%s\n\n", report.ErrorWithCode(Join("", ParsingError, IOError)).Error())
+	fmt.Printf("Report (io and parsing errors):\n%s\n\n", report.ErrorWithCode(utils.Join("", ParsingError, IOError)).Error())
 
 	//Output:
 	//Report (all errors):

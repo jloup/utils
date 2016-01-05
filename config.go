@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"flag"
 	"fmt"
 	"reflect"
 	"strings"
@@ -10,6 +11,15 @@ import (
 
 type Conf interface {
 	SetToDefaults()
+}
+
+func MustParseStdConfigFile(conf Conf) {
+	var path string
+
+	flag.StringVar(&path, "conf", "conf.toml", "config file")
+	flag.Parse()
+
+	MustParseConfigFile(path, conf)
 }
 
 func MustParseConfigFile(path string, conf Conf) {

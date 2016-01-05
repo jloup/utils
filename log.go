@@ -11,12 +11,16 @@ import (
 )
 
 type Error struct {
-	Flag    Flag
-	Message string
+	ErrorFlag Flag
+	Message   string
 }
 
 func (e Error) FlagString() string {
-	return e.Flag.String()
+	return e.ErrorFlag.String()
+}
+
+func (e Error) Flag() Flag {
+	return e.ErrorFlag
 }
 
 func (e Error) Msg() string {
@@ -27,26 +31,39 @@ func (e Error) Error() string {
 	return e.Message
 }
 
+func (e Error) ErrorWithCode(f Flag) ErrorFlagged {
+	if Intersect(e.ErrorFlag, f) {
+		return e
+	}
+
+	return nil
+}
+
 func ErrIs(err error, f Flag) bool {
 	switch e := err.(type) {
-	case Error:
-		return Intersect(e.Flag, f)
-	case *Error:
-		return Intersect(e.Flag, f)
+	case ErrorFlagged:
+		if Intersect(e.Flag(), f) {
+			return f.name == e.FlagString()
+		}
 	}
 
 	return false
 }
 
+var ErrorFlagCounter Counter
+
+func NewErrorFlag(name string) Flag {
+	return InitFlag(&ErrorFlagCounter, name)
+}
+
 type L struct {
 	*log.Entry
-	C Counter
 }
 
 var stdL *L
 
 func init() {
-	stdL = &L{log.NewEntry(log.StandardLogger()), 0}
+	stdL = &L{log.NewEntry(log.StandardLogger())}
 }
 
 func StandardL() *L {
@@ -134,16 +151,10 @@ func fileinfo(skip int) string {
 func bindType(fields log.Fields, args ...interface{}) {
 	for _, arg := range args {
 		switch e := arg.(type) {
-		case *Error:
-			fields[fieldFlagName] = e.Flag.String()
-		case Error:
-			fields[fieldFlagName] = e.Flag.String()
+		case ErrorFlagged:
+			fields[fieldFlagName] = e.FlagString()
 		}
 	}
-}
-
-func (l *L) NewErrorFlag(name string) Flag {
-	return InitFlag(&l.C, name)
 }
 
 func (l *L) Error(args ...interface{}) {
@@ -315,11 +326,11 @@ func (l *L) Infoln(args ...interface{}) {
 }
 
 func (l *L) WithField(key string, value interface{}) *L {
-	return &L{l.Entry.WithField(key, value), l.C}
+	return &L{l.Entry.WithField(key, value)}
 }
 
 func (l *L) WithFields(fields log.Fields) *L {
-	return &L{l.Entry.WithFields(fields), l.C}
+	return &L{l.Entry.WithFields(fields)}
 }
 
 func Concat(flags ...Flag) Flag {
