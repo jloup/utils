@@ -40,6 +40,10 @@ func (e Error) ErrorWithCode(f Flag) ErrorFlagged {
 }
 
 func ErrIs(err error, f Flag) bool {
+	if err == nil {
+		return false
+	}
+
 	switch e := err.(type) {
 	case ErrorFlagged:
 		if Intersect(e.Flag(), f) {
