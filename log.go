@@ -62,12 +62,14 @@ func NewErrorFlag(name string) Flag {
 
 type L struct {
 	*log.Entry
+	configuration LogConfiguration
 }
 
 var stdL *L
 
 func init() {
-	stdL = &L{log.NewEntry(log.StandardLogger())}
+	stdL = &L{Entry: log.NewEntry(log.StandardLogger())}
+	stdL.configuration.SetToDefaults()
 }
 
 func StandardL() *L {
@@ -75,13 +77,14 @@ func StandardL() *L {
 }
 
 type LogConfiguration struct {
-	LogOut    string
-	LogLevel  string
-	LogColors bool
+	LogOut      string `toml:"log_out"`
+	LogLevel    string `toml:"log_level"`
+	LogColors   bool   `toml:"log_colors"`
+	LogLocation bool   `toml:"log_location"`
 }
 
 func (l *LogConfiguration) SetToDefaults() {
-	*l = LogConfiguration{"stdout", "error", false}
+	*l = LogConfiguration{"stdout", "error", false, false}
 }
 
 func ConfigureStdLogger(lc LogConfiguration) error {
@@ -129,6 +132,7 @@ func ConfigureStdLogger(lc LogConfiguration) error {
 		TimestampFormat:  "Jan _2 15:04:05"}
 
 	stdL.Logger.Level = l
+	stdL.configuration = lc
 
 	return nil
 }
@@ -162,7 +166,10 @@ func bindType(fields log.Fields, args ...interface{}) {
 }
 
 func (l *L) Error(args ...interface{}) {
-	fields := log.Fields{fieldFileInnfoName: fileinfo(2)}
+	fields := log.Fields{}
+	if l.configuration.LogLocation {
+		fields[fieldFileInnfoName] = fileinfo(2)
+	}
 
 	bindType(fields, args...)
 
@@ -170,7 +177,10 @@ func (l *L) Error(args ...interface{}) {
 }
 
 func (l *L) Errorf(f string, args ...interface{}) {
-	fields := log.Fields{fieldFileInnfoName: fileinfo(2)}
+	fields := log.Fields{}
+	if l.configuration.LogLocation {
+		fields[fieldFileInnfoName] = fileinfo(2)
+	}
 
 	bindType(fields, args...)
 
@@ -178,7 +188,10 @@ func (l *L) Errorf(f string, args ...interface{}) {
 }
 
 func (l *L) Errorln(args ...interface{}) {
-	fields := log.Fields{fieldFileInnfoName: fileinfo(2)}
+	fields := log.Fields{}
+	if l.configuration.LogLocation {
+		fields[fieldFileInnfoName] = fileinfo(2)
+	}
 
 	bindType(fields, args...)
 
@@ -186,7 +199,10 @@ func (l *L) Errorln(args ...interface{}) {
 }
 
 func (l *L) Debug(args ...interface{}) {
-	fields := log.Fields{fieldFileInnfoName: fileinfo(2)}
+	fields := log.Fields{}
+	if l.configuration.LogLocation {
+		fields[fieldFileInnfoName] = fileinfo(2)
+	}
 
 	bindType(fields, args...)
 
@@ -194,7 +210,10 @@ func (l *L) Debug(args ...interface{}) {
 }
 
 func (l *L) Debugf(f string, args ...interface{}) {
-	fields := log.Fields{fieldFileInnfoName: fileinfo(2)}
+	fields := log.Fields{}
+	if l.configuration.LogLocation {
+		fields[fieldFileInnfoName] = fileinfo(2)
+	}
 
 	bindType(fields, args...)
 
@@ -202,7 +221,10 @@ func (l *L) Debugf(f string, args ...interface{}) {
 }
 
 func (l *L) Debugln(args ...interface{}) {
-	fields := log.Fields{fieldFileInnfoName: fileinfo(2)}
+	fields := log.Fields{}
+	if l.configuration.LogLocation {
+		fields[fieldFileInnfoName] = fileinfo(2)
+	}
 
 	bindType(fields, args...)
 
@@ -210,7 +232,10 @@ func (l *L) Debugln(args ...interface{}) {
 }
 
 func (l *L) Fatal(args ...interface{}) {
-	fields := log.Fields{fieldFileInnfoName: fileinfo(2)}
+	fields := log.Fields{}
+	if l.configuration.LogLocation {
+		fields[fieldFileInnfoName] = fileinfo(2)
+	}
 
 	bindType(fields, args...)
 
@@ -218,7 +243,10 @@ func (l *L) Fatal(args ...interface{}) {
 }
 
 func (l *L) Fatalf(f string, args ...interface{}) {
-	fields := log.Fields{fieldFileInnfoName: fileinfo(2)}
+	fields := log.Fields{}
+	if l.configuration.LogLocation {
+		fields[fieldFileInnfoName] = fileinfo(2)
+	}
 
 	bindType(fields, args...)
 
@@ -226,7 +254,10 @@ func (l *L) Fatalf(f string, args ...interface{}) {
 }
 
 func (l *L) Fatalln(args ...interface{}) {
-	fields := log.Fields{fieldFileInnfoName: fileinfo(2)}
+	fields := log.Fields{}
+	if l.configuration.LogLocation {
+		fields[fieldFileInnfoName] = fileinfo(2)
+	}
 
 	bindType(fields, args...)
 
@@ -234,7 +265,10 @@ func (l *L) Fatalln(args ...interface{}) {
 }
 
 func (l *L) Panic(args ...interface{}) {
-	fields := log.Fields{fieldFileInnfoName: fileinfo(2)}
+	fields := log.Fields{}
+	if l.configuration.LogLocation {
+		fields[fieldFileInnfoName] = fileinfo(2)
+	}
 
 	bindType(fields, args...)
 
@@ -242,7 +276,10 @@ func (l *L) Panic(args ...interface{}) {
 }
 
 func (l *L) Panicf(f string, args ...interface{}) {
-	fields := log.Fields{fieldFileInnfoName: fileinfo(2)}
+	fields := log.Fields{}
+	if l.configuration.LogLocation {
+		fields[fieldFileInnfoName] = fileinfo(2)
+	}
 
 	bindType(fields, args...)
 
@@ -250,7 +287,10 @@ func (l *L) Panicf(f string, args ...interface{}) {
 }
 
 func (l *L) Panicln(args ...interface{}) {
-	fields := log.Fields{fieldFileInnfoName: fileinfo(2)}
+	fields := log.Fields{}
+	if l.configuration.LogLocation {
+		fields[fieldFileInnfoName] = fileinfo(2)
+	}
 
 	bindType(fields, args...)
 
@@ -258,7 +298,10 @@ func (l *L) Panicln(args ...interface{}) {
 }
 
 func (l *L) Print(args ...interface{}) {
-	fields := log.Fields{fieldFileInnfoName: fileinfo(2)}
+	fields := log.Fields{}
+	if l.configuration.LogLocation {
+		fields[fieldFileInnfoName] = fileinfo(2)
+	}
 
 	bindType(fields, args...)
 
@@ -266,7 +309,10 @@ func (l *L) Print(args ...interface{}) {
 }
 
 func (l *L) Printf(f string, args ...interface{}) {
-	fields := log.Fields{fieldFileInnfoName: fileinfo(2)}
+	fields := log.Fields{}
+	if l.configuration.LogLocation {
+		fields[fieldFileInnfoName] = fileinfo(2)
+	}
 
 	bindType(fields, args...)
 
@@ -274,7 +320,10 @@ func (l *L) Printf(f string, args ...interface{}) {
 }
 
 func (l *L) Println(args ...interface{}) {
-	fields := log.Fields{fieldFileInnfoName: fileinfo(2)}
+	fields := log.Fields{}
+	if l.configuration.LogLocation {
+		fields[fieldFileInnfoName] = fileinfo(2)
+	}
 
 	bindType(fields, args...)
 
@@ -282,7 +331,10 @@ func (l *L) Println(args ...interface{}) {
 }
 
 func (l *L) Warn(args ...interface{}) {
-	fields := log.Fields{fieldFileInnfoName: fileinfo(2)}
+	fields := log.Fields{}
+	if l.configuration.LogLocation {
+		fields[fieldFileInnfoName] = fileinfo(2)
+	}
 
 	bindType(fields, args...)
 
@@ -290,7 +342,10 @@ func (l *L) Warn(args ...interface{}) {
 }
 
 func (l *L) Warnf(f string, args ...interface{}) {
-	fields := log.Fields{fieldFileInnfoName: fileinfo(2)}
+	fields := log.Fields{}
+	if l.configuration.LogLocation {
+		fields[fieldFileInnfoName] = fileinfo(2)
+	}
 
 	bindType(fields, args...)
 
@@ -298,7 +353,10 @@ func (l *L) Warnf(f string, args ...interface{}) {
 }
 
 func (l *L) Warnln(args ...interface{}) {
-	fields := log.Fields{fieldFileInnfoName: fileinfo(2)}
+	fields := log.Fields{}
+	if l.configuration.LogLocation {
+		fields[fieldFileInnfoName] = fileinfo(2)
+	}
 
 	bindType(fields, args...)
 
@@ -306,7 +364,10 @@ func (l *L) Warnln(args ...interface{}) {
 }
 
 func (l *L) Info(args ...interface{}) {
-	fields := log.Fields{fieldFileInnfoName: fileinfo(2)}
+	fields := log.Fields{}
+	if l.configuration.LogLocation {
+		fields[fieldFileInnfoName] = fileinfo(2)
+	}
 
 	bindType(fields, args...)
 
@@ -314,7 +375,10 @@ func (l *L) Info(args ...interface{}) {
 }
 
 func (l *L) Infof(f string, args ...interface{}) {
-	fields := log.Fields{fieldFileInnfoName: fileinfo(2)}
+	fields := log.Fields{}
+	if l.configuration.LogLocation {
+		fields[fieldFileInnfoName] = fileinfo(2)
+	}
 
 	bindType(fields, args...)
 
@@ -322,7 +386,10 @@ func (l *L) Infof(f string, args ...interface{}) {
 }
 
 func (l *L) Infoln(args ...interface{}) {
-	fields := log.Fields{fieldFileInnfoName: fileinfo(2)}
+	fields := log.Fields{}
+	if l.configuration.LogLocation {
+		fields[fieldFileInnfoName] = fileinfo(2)
+	}
 
 	bindType(fields, args...)
 
@@ -330,11 +397,15 @@ func (l *L) Infoln(args ...interface{}) {
 }
 
 func (l *L) WithField(key string, value interface{}) *L {
-	return &L{l.Entry.WithField(key, value)}
+	return &L{Entry: l.Entry.WithField(key, value),
+		configuration: l.configuration,
+	}
 }
 
 func (l *L) WithFields(fields log.Fields) *L {
-	return &L{l.Entry.WithFields(fields)}
+	return &L{Entry: l.Entry.WithFields(fields),
+		configuration: l.configuration,
+	}
 }
 
 func Concat(flags ...Flag) Flag {
