@@ -76,9 +76,9 @@ func StandardL() *L {
 }
 
 type LogConfiguration struct {
-	LogOut      string `toml:"log_out"`
-	LogLevel    string `toml:"log_level"`
-	LogColors   bool   `toml:"log_colors"`
+	LogOut    string `toml:"log_out"`
+	LogLevel  string `toml:"log_level"`
+	LogColors bool   `toml:"log_colors"`
 }
 
 func (l *LogConfiguration) SetToDefaults() {
@@ -146,6 +146,23 @@ func bindType(fields log.Fields, args ...interface{}) {
 		case ErrorFlagged:
 			fields[fieldFlagName] = e.FlagString()
 		}
+	}
+}
+
+func (l *L) Logf(level log.Level, f string, args ...interface{}) {
+	switch level {
+	case log.DebugLevel:
+		l.Debugf(f, args...)
+	case log.InfoLevel:
+		l.Infof(f, args...)
+	case log.WarnLevel:
+		l.Warnf(f, args...)
+	case log.ErrorLevel:
+		l.Errorf(f, args...)
+	case log.FatalLevel:
+		l.Fatalf(f, args...)
+	case log.PanicLevel:
+		l.Panicf(f, args...)
 	}
 }
 
