@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"runtime"
 	"strings"
 
 	log "github.com/Sirupsen/logrus"
@@ -80,11 +79,10 @@ type LogConfiguration struct {
 	LogOut      string `toml:"log_out"`
 	LogLevel    string `toml:"log_level"`
 	LogColors   bool   `toml:"log_colors"`
-	LogLocation bool   `toml:"log_location"`
 }
 
 func (l *LogConfiguration) SetToDefaults() {
-	*l = LogConfiguration{"stdout", "error", false, false}
+	*l = LogConfiguration{"stdout", "error", false}
 }
 
 func ConfigureStdLogger(lc LogConfiguration) error {
@@ -142,20 +140,6 @@ const (
 	fieldFileInnfoName = "loc"
 )
 
-func fileinfo(skip int) string {
-	_, file, line, ok := runtime.Caller(skip)
-	if !ok {
-		file = "<???>"
-		line = 1
-	} else {
-		slash := strings.LastIndex(file, "/")
-		if slash >= 0 {
-			file = file[slash+1:]
-		}
-	}
-	return fmt.Sprintf("%s:%d", file, line)
-}
-
 func bindType(fields log.Fields, args ...interface{}) {
 	for _, arg := range args {
 		switch e := arg.(type) {
@@ -167,9 +151,6 @@ func bindType(fields log.Fields, args ...interface{}) {
 
 func (l *L) Error(args ...interface{}) {
 	fields := log.Fields{}
-	if l.configuration.LogLocation {
-		fields[fieldFileInnfoName] = fileinfo(2)
-	}
 
 	bindType(fields, args...)
 
@@ -178,9 +159,6 @@ func (l *L) Error(args ...interface{}) {
 
 func (l *L) Errorf(f string, args ...interface{}) {
 	fields := log.Fields{}
-	if l.configuration.LogLocation {
-		fields[fieldFileInnfoName] = fileinfo(2)
-	}
 
 	bindType(fields, args...)
 
@@ -189,9 +167,6 @@ func (l *L) Errorf(f string, args ...interface{}) {
 
 func (l *L) Errorln(args ...interface{}) {
 	fields := log.Fields{}
-	if l.configuration.LogLocation {
-		fields[fieldFileInnfoName] = fileinfo(2)
-	}
 
 	bindType(fields, args...)
 
@@ -200,9 +175,6 @@ func (l *L) Errorln(args ...interface{}) {
 
 func (l *L) Debug(args ...interface{}) {
 	fields := log.Fields{}
-	if l.configuration.LogLocation {
-		fields[fieldFileInnfoName] = fileinfo(2)
-	}
 
 	bindType(fields, args...)
 
@@ -211,9 +183,6 @@ func (l *L) Debug(args ...interface{}) {
 
 func (l *L) Debugf(f string, args ...interface{}) {
 	fields := log.Fields{}
-	if l.configuration.LogLocation {
-		fields[fieldFileInnfoName] = fileinfo(2)
-	}
 
 	bindType(fields, args...)
 
@@ -222,9 +191,6 @@ func (l *L) Debugf(f string, args ...interface{}) {
 
 func (l *L) Debugln(args ...interface{}) {
 	fields := log.Fields{}
-	if l.configuration.LogLocation {
-		fields[fieldFileInnfoName] = fileinfo(2)
-	}
 
 	bindType(fields, args...)
 
@@ -233,9 +199,6 @@ func (l *L) Debugln(args ...interface{}) {
 
 func (l *L) Fatal(args ...interface{}) {
 	fields := log.Fields{}
-	if l.configuration.LogLocation {
-		fields[fieldFileInnfoName] = fileinfo(2)
-	}
 
 	bindType(fields, args...)
 
@@ -244,9 +207,6 @@ func (l *L) Fatal(args ...interface{}) {
 
 func (l *L) Fatalf(f string, args ...interface{}) {
 	fields := log.Fields{}
-	if l.configuration.LogLocation {
-		fields[fieldFileInnfoName] = fileinfo(2)
-	}
 
 	bindType(fields, args...)
 
@@ -255,9 +215,6 @@ func (l *L) Fatalf(f string, args ...interface{}) {
 
 func (l *L) Fatalln(args ...interface{}) {
 	fields := log.Fields{}
-	if l.configuration.LogLocation {
-		fields[fieldFileInnfoName] = fileinfo(2)
-	}
 
 	bindType(fields, args...)
 
@@ -266,9 +223,6 @@ func (l *L) Fatalln(args ...interface{}) {
 
 func (l *L) Panic(args ...interface{}) {
 	fields := log.Fields{}
-	if l.configuration.LogLocation {
-		fields[fieldFileInnfoName] = fileinfo(2)
-	}
 
 	bindType(fields, args...)
 
@@ -277,9 +231,6 @@ func (l *L) Panic(args ...interface{}) {
 
 func (l *L) Panicf(f string, args ...interface{}) {
 	fields := log.Fields{}
-	if l.configuration.LogLocation {
-		fields[fieldFileInnfoName] = fileinfo(2)
-	}
 
 	bindType(fields, args...)
 
@@ -288,9 +239,6 @@ func (l *L) Panicf(f string, args ...interface{}) {
 
 func (l *L) Panicln(args ...interface{}) {
 	fields := log.Fields{}
-	if l.configuration.LogLocation {
-		fields[fieldFileInnfoName] = fileinfo(2)
-	}
 
 	bindType(fields, args...)
 
@@ -299,9 +247,6 @@ func (l *L) Panicln(args ...interface{}) {
 
 func (l *L) Print(args ...interface{}) {
 	fields := log.Fields{}
-	if l.configuration.LogLocation {
-		fields[fieldFileInnfoName] = fileinfo(2)
-	}
 
 	bindType(fields, args...)
 
@@ -310,9 +255,6 @@ func (l *L) Print(args ...interface{}) {
 
 func (l *L) Printf(f string, args ...interface{}) {
 	fields := log.Fields{}
-	if l.configuration.LogLocation {
-		fields[fieldFileInnfoName] = fileinfo(2)
-	}
 
 	bindType(fields, args...)
 
@@ -321,9 +263,6 @@ func (l *L) Printf(f string, args ...interface{}) {
 
 func (l *L) Println(args ...interface{}) {
 	fields := log.Fields{}
-	if l.configuration.LogLocation {
-		fields[fieldFileInnfoName] = fileinfo(2)
-	}
 
 	bindType(fields, args...)
 
@@ -332,9 +271,6 @@ func (l *L) Println(args ...interface{}) {
 
 func (l *L) Warn(args ...interface{}) {
 	fields := log.Fields{}
-	if l.configuration.LogLocation {
-		fields[fieldFileInnfoName] = fileinfo(2)
-	}
 
 	bindType(fields, args...)
 
@@ -343,9 +279,6 @@ func (l *L) Warn(args ...interface{}) {
 
 func (l *L) Warnf(f string, args ...interface{}) {
 	fields := log.Fields{}
-	if l.configuration.LogLocation {
-		fields[fieldFileInnfoName] = fileinfo(2)
-	}
 
 	bindType(fields, args...)
 
@@ -354,9 +287,6 @@ func (l *L) Warnf(f string, args ...interface{}) {
 
 func (l *L) Warnln(args ...interface{}) {
 	fields := log.Fields{}
-	if l.configuration.LogLocation {
-		fields[fieldFileInnfoName] = fileinfo(2)
-	}
 
 	bindType(fields, args...)
 
@@ -365,9 +295,6 @@ func (l *L) Warnln(args ...interface{}) {
 
 func (l *L) Info(args ...interface{}) {
 	fields := log.Fields{}
-	if l.configuration.LogLocation {
-		fields[fieldFileInnfoName] = fileinfo(2)
-	}
 
 	bindType(fields, args...)
 
@@ -376,9 +303,6 @@ func (l *L) Info(args ...interface{}) {
 
 func (l *L) Infof(f string, args ...interface{}) {
 	fields := log.Fields{}
-	if l.configuration.LogLocation {
-		fields[fieldFileInnfoName] = fileinfo(2)
-	}
 
 	bindType(fields, args...)
 
@@ -387,9 +311,6 @@ func (l *L) Infof(f string, args ...interface{}) {
 
 func (l *L) Infoln(args ...interface{}) {
 	fields := log.Fields{}
-	if l.configuration.LogLocation {
-		fields[fieldFileInnfoName] = fileinfo(2)
-	}
 
 	bindType(fields, args...)
 
